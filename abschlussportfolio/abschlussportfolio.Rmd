@@ -1,0 +1,81 @@
+---
+author: "Flo Wisniewski"
+date: "`r format(Sys.Date())`"
+title: "Übung: Advanced R --- Abschlussportfolio"
+subtitle: "Sommersemester 2021 | Leitung: J. Goes"
+output:
+  rmdformats::material:
+    highlight: kate
+  toc: true
+  number_sections: true
+abstract:
+  "In diesem Portfolio sollen verschiedene sozialwissenschaftliche Datensätze hinsichtlich zentraler Werte statistisch aufgearbeitet und anschließend visualisiert werden."
+lang: "DE"
+runtime: shiny
+documentclass: "article"
+geometry: "2.5"
+fontfamily: "Roboto"
+fontsize: "11pt"
+linkcolor: "green"
+citecolor: "blue"
+urlcolor: "blue"
+bibliography: literature.bib
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+# Einleitung
+
+```{r load dfs, echo = FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+setwd(dir = "/Users/flo/Documents/Uni/Uni Bamberg/SS 2021/Advanced R/advanced-r")
+
+allbus <- read_dta(file = "ALLBUS2018/allbus2018.dta")
+gles <- read_dta(file = "GLES2017/GLES2017")
+```
+
+
+Im folgenden Dokument soll sich mit Daten aus der Sozialwissenschaft auseinandergesetzt werden. Dafür werden die Datensätze des **ALLBUS** (Allgemeine Bevölkerungsumfrage der Sozialwissenschaften, von 2018) ^[@ALLBUS2018] und der **GLES** (German Longitudinal Election Study in der Version der Nachwahlbefragung, von 2017) ^[@GLES2017].
+
+Darin sollen verschiedene interessante Korrelationen untersucht werden und anschließend 
+
+# Zur Erstellung genutzte Libraries
+
+Zuerst zu den im vorliegenden Dokument genutzten R-Libraries. Zum Überblick dient nachfolgende Liste:
+
+```{r}
+# libraries
+library(tidyverse)
+library(plotly)
+library(ymlthis)
+library(haven)
+library(foreign)
+library(esquisse)
+library(expss)
+```
+
+Zur Erstellung der Graphiken in diesem Portfolio wird auf `ggplot2` aus dem `tidyverse` zurückgegriffen, da dieses umfassende Möglichkeiten hierzu bietet.
+
+# Analyse 1: Thema "Herkunft und Parteienpräferenz" im ALLBUS
+
+```{r herkunft und parteipräferenz}
+ggplot(data = allbus, mapping = aes())
+```
+
+
+
+
+# Literatur {-}
