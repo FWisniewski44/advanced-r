@@ -5,7 +5,7 @@ title: "Übung: Advanced R --- Abschlussportfolio"
 subtitle: "Sommersemester 2021 | Leitung: J. Goes"
 output:
   rmdformats::material:
-    highlight: kate
+    highlight: espresso
   toc: true
   number_sections: true
 abstract:
@@ -47,12 +47,22 @@ allbus <- read_dta(file = "ALLBUS2018/allbus2018.dta")
 gles <- read_dta(file = "GLES2017/GLES2017")
 ```
 
+> The simple graph has brought more information to the data analyst's mind than any other device. ^[@RDataScience, S. 3]
 
-Im folgenden Dokument soll sich mit Daten aus der Sozialwissenschaft auseinandergesetzt werden. Dafür werden die Datensätze des **ALLBUS** (Allgemeine Bevölkerungsumfrage der Sozialwissenschaften, von 2018) ^[@ALLBUS2018] und der **GLES** (German Longitudinal Election Study in der Version der Nachwahlbefragung, von 2017) ^[@GLES2017].
+Dieses Zitat des bekannten Statistikers und (Mit-)Erfinders des Boxplots John Tukey lässt sich zu Beginn des ersten Kapitels des Einführungswerks *"R for Data Science"* von Hadley Wickham und Garrett Grolemund finden.
 
-Darin sollen verschiedene interessante Korrelationen untersucht werden und anschließend 
+Der Einschätzung Tukeys ist zweifelsohne beizupflichten: Es sind aktuell wohl nur wenige statistische Untersuchungen bekannt, die nicht auf irgendeine denkbare Art und Weise eine Form graphischer Darstellung zur Erklärung der Befunde nutzen würden.
+Dass das Analysetool "graphische Darstellung" derartig oft genutzt wird und eine so große Wertschätzung genießt, liegt dabei eigentlich auf der Hand; der bekannte Ausspruch, dass ein Bild mehr sage, als 1.000 Worte gilt wohl auch in der statistischen Analyse: eine gut erstellte und übersichtliche Graphik vermag es wirklich, Befunde kurz und knapp und vor allen Dingen **allgemein verständlich** auf den Punkt zu bringen. Für einen Blick in beispielsweise eine Regressionstabelle eines Mehrebenenmodells jedoch, so darf angezweifelt werden, kann dies nicht unbedingt in jedem Fall behauptet werden.
 
-# Zur Erstellung genutzte Libraries
+Um jedoch dem Anspruch an die Übersetzung von Informationen in großer Masse in Graphiken gerecht zu werden, brauchen die Analysierenden zweckmäßige und mächtige Tools. Die Programmiersprache `R` offenbart im Umgang mit großen Datenmengen gegenüber Konkurrenten wie `SPSS` von IBM oder auch `Stata` entscheidende Vorteile. Zwar können in den anderen Statistiksoftware-Angeboten ebenfalls Graphiken erstellt werden (sowohl durch das Klicken in Menüs, als auch syntaxbasiert) - jedoch kann wohl mit Recht behauptet werden, dass die Möglichkeiten der Visualisierung von Daten in `R` wesentlich umfassender sind, was vor allem auch an einem Package liegt: `ggplot2`.
+
+Dieses ist im bekannten und beliebten `tidyverse` enthalten, einem Meta-Package, welches von Hadley Wickham und seinem Team für die Nutzung durch Data Scientists entwickelt wurde und essentielle und nützliche Packages zur einfachen Installation sammelt.
+
+Im folgenden Dokument soll sich nun exemplarisch mit Daten aus der Sozialwissenschaft auseinandergesetzt werden. Dafür werden die Datensätze des **ALLBUS** (*Allgemeine Bevölkerungsumfrage der Sozialwissenschaften*, von 2018) ^[@ALLBUS2018] und der **GLES** (*German Longitudinal Election Study* in der Version der Nachwahlbefragung, von 2017) ^[@GLES2017] genutzt.
+
+Es sollen mit Hilfe dieser Daten verschiedene interessante Sachverhalte und Zusammenhänge visuell aufbereitet und analysiert werden - all das unter der Nutzung des R-Packages `ggplot2`. Im Fokus wird die eigentliche Arbeit mit dem Package selbst stehen. Dessen Möglichkeiten sollen, im Rahmen der kurzen Analysen und Visualisierungen, möglichst voll ausgeschöpft werden, sodass dessen Vorzüge (nicht nur gegenüber anderen Softwarelösungen, sondern auch gegenüber z. B. den Plots aus `baseR`) für den Nutzenden klar zum Vorschein kommen.
+
+## Zur Erstellung genutzte Libraries
 
 Zuerst zu den im vorliegenden Dokument genutzten R-Libraries. Zum Überblick dient nachfolgende Liste:
 
@@ -67,13 +77,79 @@ library(esquisse)
 library(expss)
 ```
 
-Zur Erstellung der Graphiken in diesem Portfolio wird auf `ggplot2` aus dem `tidyverse` zurückgegriffen, da dieses umfassende Möglichkeiten hierzu bietet.
+Zur Erstellung der Graphiken in diesem Portfolio wird auf `ggplot2` aus dem `tidyverse` zurückgegriffen, da dieses umfassende Möglichkeiten hierzu bietet. Es können damit vielseitige Graphiken erstellt werden, die mehrere Layer haben. Ebenso wird das Package `plotly` verwendet, um teilweise `ggplot2`-Graphiken für die Betrachtenden des abschließenden HTML-Dokuments interaktiv zu gestalten.
 
-# Analyse 1: Thema "Herkunft und Parteienpräferenz" im ALLBUS
+# Inhaltlich zu `ggplot2`
 
-```{r herkunft und parteipräferenz}
-ggplot(data = allbus, mapping = aes())
+## Inhaltlich 1: Entstehung von `ggplot2`, Teil des `tidyverse`, Wirkung in der R-Community
+
+
+
+## Inhaltlich 2: Funktionsweise von `ggplot2`: Einbinden verschiedener Layer und Nutzung des Pipe-Operators
+
+
+
+## Inhaltlich 3: Weitere Vereinfachung der Nutzung von `ggplot2` durch Nutzung von `esquisse`
+
+
+
+# Analyseteil: Praktische Nutzung von `ggplot2`
+
+## Analyse 1: Thema "Herkunft und Parteienpräferenz" in ALLBUS und GLES
+
+Um nun die Vorzüge und Möglichkeiten von `ggplot2` nicht nur zu beschrieben, sondern auch praktisch umzusetzen, sollen nun, wie in der Einleitung angekündigt, einige exemplarische Analysen durchgeführt werden. Zunächst wird anhand der ALLBUS-Daten ein kurzer Überblick über den Zusammenhang von Herkunft innerhalb Deutschlands ("Alte" vs. "Neue" Bundesländer) und der Parteipräferenz von Wählern gegeben.
+
+So könnte man sich beispielsweise dafür interessieren, wo die genauen Unterschiede zwischen diesen Wählerpopulationen liegen. Es herrschen die gängigen Annahmen vor, dass die AfD als Partei im Osten Deutschlands mehr Stimmen generieren kann, als im Westen des Landes. Außerdem wurden, unter anderem im Zuge der Wahlen in Sachsen-Anhalt, die Probleme der Grünen im Osten angesprochen, welche dazu führen, dass die Partei dort eher weniger stark Fuß fassen kann.
+
+Diese Unterschiede könnte man natürlich auch mittels eines Blicks auf "nackte Zahlen" einer (relativen) Häufigkeitsverteilung untersuchen - doch ist ein solcher *übersichtlicher*, *einfacher* und *klarer*, wenn man sich der graphischen Darstellung mittels `ggplot2` bedient.
+
+```{r herkunft und parteipräferenz, message=FALSE, warning=FALSE, paged.print=FALSE}
+# zum plotten als typ factor umformen
+allbus$sonntagsfrage <- factor(allbus$pv01, labels = c("Nicht wahlberechtigt", "K. Ang.", "Weiß nicht",
+                                                       "Verweigert", "Union", "SPD", "FDP", "Grüne",
+                                                       "Linke", "AfD", "Andere", "Nichtwähler"))
+
+allbus$ostwest <- factor(allbus$eastwest, labels = c("West", "Ost"))
+
+# erstellen der graphik
+herkunft <- ggplot(allbus) +
+  geom_bar(aes(x = ostwest, fill = sonntagsfrage, weight = wghtpew), position = "fill") +
+  theme_classic() +
+  scale_fill_manual(values = c("#f6b109", "#00fff9", "#fa98fb", "#ccabab", "#000000", "#ff0000", "#fdff00", "#338140", "#803381", "#0979f6", "#3e2a0c", "#5c5c5c")) +
+  ggtitle(label = "Wahlabsichten in den 'alten' \n vs. in den 'neuen' Bundesländern") +
+  xlab(label = "") +
+  ylab(label = "Proportionale Verteilung") +
+  guides(fill = guide_legend(title = "Wahlabsicht Befragte/r"))
 ```
+
+```{r ggplotly interactive, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+# für den report: graphik kann auch interaktiv gestaltet werden über plotly, was nur einen einzigen befehl benötigt
+ggplotly(herkunft)
+```
+
+Die Graphik wurde mittels `plotly` interaktiv gestaltet, sodass bei Betrachtung im HTML-Output Informationen (z. B. die Gruppe, also Ost/West; die Gewichtung; den Anteil der Partei an der prozentualen Verteilung) angezeigt werden, sobald der Mauszeiger über eine farblich abgehobenen Kategorie geführt wird. Ebenso können per Doppelklick auf eine Kategorie der Legende alle anderen Kategorien ausgeblendet werden, was einen Vergleich zwischen "Ost" und "West" extrem einfach macht.
+
+Zur Graphik selbst ist zu sagen, dass mittels des Parameters `position = "fill"` für das gewählte `geom_bar` eine Anpassung an die volle Höhe des Koordinatensystems vorgenommen wurde. Diese "Standardisierung" der Werte führt zu einer bestmöglichen Vergleichbarkeit zwischen den Gruppen.
+
+Es kann aus der Graphik somit einfach herausgelesen werden, dass die Wählerschaften der Linken und der AfD (Stand 2018) im Osten Deutschlands wesentlich größer sind, als im Westen. Darüber hinaus bestätigt sich das Bild, dass es die Grünen im Osten des Landes schwer haben, vergleicht man die beiden Gruppen in Ost und West. Es fällt für das Jahr 2018 ebenso auf, dass die Gruppe der Nichtwähler im Osten des Landes unübersehbar größer ist, als im Westen. Alle diese Ergebnisse wurden zudem über den `weight`-Parameter und eine dafür vorgesehene Variable des ALLBUS gewichtet, da die Befragten aus dem Osten Deutschlands im ALLBUS im Verhältnis zum wahren Bevölkerungsanteil überrepräsentiert sind.
+
+## Analyse 2: Thema "Herkunft und Fremdenfeindlichkeit" im ALLBUS
+
+
+
+## Analyse 3: Logistische Regression zu Fremdenfeindlichkeit - welche Einflüsse gibt es?
+
+
+
+## Analyse 4: Warum `ggplot2` und nicht einfach `baseR`?
+
+
+
+## Analyse 5: Evtl. noch was zu soziale Klasse
+
+
+
+# Schlussbemerkungen/Fazit
 
 
 
