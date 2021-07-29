@@ -47,7 +47,7 @@ allbus <- read_dta(file = "ALLBUS2018/allbus2018.dta")
 gles <- read_dta(file = "GLES2017/GLES2017")
 ```
 
-> The simple graph has brought more information to the data analyst's mind than any other device. ^[@RDataScience, S. 3]
+> The simple graph has brought more information to the data analyst's mind than any other device.^[@RDataScience, S. 3]
 
 Dieses Zitat des bekannten Statistikers und (Mit-)Erfinders des Boxplots John Tukey lässt sich zu Beginn des ersten Kapitels des Einführungswerks *"R for Data Science"* von Hadley Wickham und Garrett Grolemund finden.
 
@@ -56,9 +56,9 @@ Dass das Analysetool "graphische Darstellung" derartig oft genutzt wird und eine
 
 Um jedoch dem Anspruch an die Übersetzung von Informationen in großer Masse in Graphiken gerecht zu werden, brauchen die Analysierenden zweckmäßige und mächtige Tools. Die Programmiersprache `R` offenbart im Umgang mit großen Datenmengen gegenüber Konkurrenten wie `SPSS` von IBM oder auch `Stata` entscheidende Vorteile. Zwar können in den anderen Statistiksoftware-Angeboten ebenfalls Graphiken erstellt werden (sowohl durch das Klicken in Menüs, als auch syntaxbasiert) - jedoch kann wohl mit Recht behauptet werden, dass die Möglichkeiten der Visualisierung von Daten in `R` wesentlich umfassender sind, was vor allem auch an einem Package liegt: `ggplot2`.
 
-Dieses ist im bekannten und beliebten `tidyverse` enthalten, einem Meta-Package, welches von Hadley Wickham und seinem Team für die Nutzung durch Data Scientists entwickelt wurde und essentielle und nützliche Packages zur einfachen Installation sammelt.
+Dieses ist im bekannten und beliebten `tidyverse` enthalten, einem Meta-Package, welches von Hadley Wickham und seinem Team für die Nutzung durch Data Scientists entwickelt wurde und essentielle und nützliche Packages zur einfachen Installation sammelt. Das Package `ggplot2` selbst wird darüber hinaus, ebenso wie viele weitere aus dem `tidyverse` immer wieder in Listen über die einfluss- und hilfreichsten Packages in R genannt (siehe z. B. Finnstats ^[@finnstats])
 
-Im folgenden Dokument soll sich nun exemplarisch mit Daten aus der Sozialwissenschaft auseinandergesetzt werden. Dafür werden die Datensätze des **ALLBUS** (*Allgemeine Bevölkerungsumfrage der Sozialwissenschaften*, von 2018) ^[@ALLBUS2018] und der **GLES** (*German Longitudinal Election Study* in der Version der Nachwahlbefragung, von 2017) ^[@GLES2017] genutzt.
+Im folgenden Dokument soll sich nun exemplarisch mit Daten aus der Sozialwissenschaft auseinandergesetzt werden. Dafür werden die Datensätze des **ALLBUS** (*Allgemeine Bevölkerungsumfrage der Sozialwissenschaften*, von 2018)^[@ALLBUS2018] und der **GLES** (*German Longitudinal Election Study* in der Version der Nachwahlbefragung, von 2017)^[@GLES2017] genutzt.
 
 Es sollen mit Hilfe dieser Daten verschiedene interessante Sachverhalte und Zusammenhänge visuell aufbereitet und analysiert werden - all das unter der Nutzung des R-Packages `ggplot2`. Im Fokus wird die eigentliche Arbeit mit dem Package selbst stehen. Dessen Möglichkeiten sollen, im Rahmen der kurzen Analysen und Visualisierungen, möglichst voll ausgeschöpft werden, sodass dessen Vorzüge (nicht nur gegenüber anderen Softwarelösungen, sondern auch gegenüber z. B. den Plots aus `baseR`) für den Nutzenden klar zum Vorschein kommen.
 
@@ -81,17 +81,46 @@ Zur Erstellung der Graphiken in diesem Portfolio wird auf `ggplot2` aus dem `tid
 
 # Inhaltlich zu `ggplot2`
 
-## Inhaltlich 1: Entstehung von `ggplot2`, Teil des `tidyverse`, Wirkung in der R-Community
+> Unlike most other graphics packages, ggplot2 has an underlying grammar, based on the Grammar of Graphics, that allows you to compose graphs by combining independent components. [...] Rather than being limited to sets of pre-defined graphics, you can create novel graphics that are tailored to your specific problem^[@wickham_navarro_pedersen2009, Section 1.1]. 
 
+Zuerst werden inhaltliche Dinge zu `ggplot2` geklärt, wie zum Beispiel die Entstehung und die zugrundeliegende Philosophie. Weiterhin wird kurz auf die Funktionsweise bzw. -prinzipien eingegangen. Anschließend soll in aller Kürze das Package `esquisse` vorgestellt werden, welches für Lernende genauso wie erfahrene Nutzende im Bezug auf `ggplot2` von großem Vorteil sein kann.
 
+## Inhaltlich 1: Entstehung von `ggplot2`, Teil des `tidyverse`, Wirkung in der R-Community, Grundideen und -prinzipien
+
+Zwischen den Nutzern von `baseR` und `ggplot2` gibt es eine (mal mehr, mal weniger) hitzig geführte Debatte darüber, welches der Pakete zur Visualisierung von Daten besser geeignet sei. Die sehr kurze Konsultation einer Internet-Suchmaschine mit dem Suchstring *ggplot2 vs. baseR* ergab zahlreiche Treffer - besonders oft Blogeinträge von Nutzenden, die für eine "Seite" Partei ergreifen. Es wird betont, dass der Code zur Erstellung von Graphiken in `ggplot2` wesentlich konziser ist, als in `baseR`^[@statsinthewild], oder auch, dass der Code darüber hinaus in `ggplot2` außerdem weniger abstrahiert sein müsste (es werden z. B. die Arbeit mit subsets von Daten oder auch das "faceting", also die Erstellung von gruppierten Graphiken, angesprochen)^[@varianceexplained].
+
+Um jedoch die Funktionsweise und das Konzept von `ggplot2` genau nachvollziehen zu können, ist es sinnvoll, sich in Erinnerung zu rufen, woher die Ideen für das Package stammen. Hadley Wickham griff bei der Entwicklung bezüglich der Grundideen auf die *Grammar of Graphics* von 2005^[@wilkinson2005] zurück - ein von Leland Wilkinson entwickeltes Konzept bzw. eine Art Leitfaden zur Visualisierung von Ergebnissen in der Statistik.
+
+Wickham selbst legte die Kernpunkte gut in einem Artikel aus dem Jahr 2010 ^[@layered-grammar, S. 3f.]: Zunächst steht die Feststellung im Zentrum, dass es für die Visualisierung mittels Graphiken eine Grammatik geben muss, die eine Grundstruktur gibt. Es geht darum, Graphiken nicht als monolithische Einheiten anzusehen, sondern die verschiedenen Schichten darin zu erkennen. Das wiederum ermögliche, so Wickham, diese einzelnen Schichten auch zu adressieren. Bereits im Abstract von Wickhams Artikel wird somit deutlich angesprochen: durch die "Grammar of Graphics" ist es möglich, nicht mehr nur von verschiedenen *Graphikarten*, wie z. B. dem Scatterplot, zu sprechen - es wird vielmehr möglich über **jede einzelne Ebene** der Graphiken etwas auszusagen und damit eine tiefergehende Struktur dieser anzusprechen.
+
+In einem Focus Article von 2011 spricht auch Wickham dann die unterschiedlichen Herangehensweisen des Erstellens von Graphiken und Plots an. Wenn Nutzende auf `baseR` oder auch `lattice` zurückgriffen, dann wären sie genau an dem zuvor beschriebenen Punkt: sie müssten sich die Frage stellen, welche Art von Graphik am besten die vorliegenden Daten beschreiben könne (also, ob bspw. ein Scatterplot gewählt wird oder ein Boxplot, usw.). Die Nutzenden könnten das bestimmen - und müssten dann mit den gegebenen Parametern arbeiten:
+
+> To create a plot, you figure out the closest named graphic and then tweak plot parameters and add primitives to bring your idea to life. For complicated graphics, code is usually imperative: draw a line here, draw text there, do this, do that, and you have to worry about many low-level details^[@ggplot2-wires, S. 2].
+
+Dem gegenüber setzt Wickham nun die Arbeit mittels `ggplot2`, welche grundsätzlich anders funktioniert, eben weil die Grammar of Graphics hier implementiert wurde:
+
+> You think about how your data will be represented visually, then describe that representation using a declarative language. The declarative language, or grammar, provides a set of independent building blocks, similar to nouns and verbs, that allow you to build up a plot piece by piece. You focus on describing what you want, leaving it up to the software to draw the plot^[@ggplot2-wires, S. 2].
 
 ## Inhaltlich 2: Funktionsweise von `ggplot2`: Einbinden verschiedener Layer und Nutzung des Pipe-Operators
 
+Die Funktionsweise wird dann nochmals genauer spezifiziert. Wickham beschreibt, was genau er mit den einzelnen Schichten meint. So könnte man beispielsweise bei einem einfachen Scatterplot drei unterschiedlicher "Layer" ausmachen: einerseits die Punkte und deren Größe bzw. Form als die geometrischen Objekte. Weiterhin die Skalen, dazu noch das Koordinatensystem, welches sozusagen den Rahmen darstellt. Fügt man diese "Bauteile" zusammen, so erhält man die grundlegende Graphik ^[@layered-grammar, S. 6].
 
+Diese Philosophie verfolgt nun auch, wie bereits zuvor beschrieben wurde, `ggplot2` in der aktiven Umsetzung innerhalb von R.
+Jede `ggplot2`-Graphik besteht im Grunde aus diesen Komponenten:
+
+  1. **Daten**, die für den Plot verwendet werden sollen. Diese werden mittels des Parameters `data` spezifiziert.
+  2. **Aesthetic mappings**: Hier wird mittels `aes()`spezifiziert, welche Variablen geplotted werden, wie diese arrangiert werden sollen, welche Formen angenommen werden sollen, welche Farben zu welchen Variablen zugewiesen werden, usw. Die Möglichkeiten sind extrem vielfältig.
+  3. **Geoms**: Die Art und Weise, auf welche die in 1. und 2. gegebenen Informationen graphisch umgesetzt bzw. visualisiert werden sollen. Geoms verschiedenster Formen können wiederum geschichtet werden, um verschiedene Layer übereinander zu legen.
+
+Bei diesen drei Schritten ist zu beachten: Begonnen wird eine Graphik, indem `ggplot()` in der IDE nach Wahl geschrieben wird. welche Daten und ästhetischen Mappings verwendet werden ist sowohl einerseits *global* (innerhalb der Klammern von `ggplot()`) als auch lokal (innerhalb der einzelnen geoms) möglich. Dies steigert wiederum erneut die Möglichkeiten der Schichtung verschiedener Visualisierungsoptionen. Intuitiv wird die Verwendung des Packages auch dadurch, dass die einzelnen Layer einfach mittels eines `+`-Zeichens sozusagen "aufaddiert" werden. Während also in Plots in `baseR` teilweise mit `for`-loops oder dergleichen gearbeitet werden muss, um verschiedene Ebenen zu erzeugen, reicht ein einfaches `+` in `ggplot2` schon aus.
+
+Einige Beispiele für die Funktionsweise von `ggplot2` "in Aktion" lassen sich im Analyseteil dieses Dokumentes finden.
 
 ## Inhaltlich 3: Weitere Vereinfachung der Nutzung von `ggplot2` durch Nutzung von `esquisse`
 
+Den Nutzenden, die eventuell jedoch einen Wechsel von `baseR` hin zu `ggplot2` planen, erscheint diese Art der Syntax eventuell noch ein wenig fremd. Ebenso könnte es sich für gänzlich neue R-NutzerInnen ergeben, dass ein mehrzeiliges `ggplot()`-Statement auf den ersten Blick etwas verwirrend aussieht.
 
+Um Nutzenden dennoch eine Möglichkeit zu geben, intuitiv und so schnell wie möglich einen visuellen Überblick über spezielle Daten zu erhalten, wurde das Package `esquisse` von Fanny Meyer, Victor Perrier und deren Team entwickelt, welches für die Nutzenden ein shiny-Addin für RStudio installiert, mit dem das Generieren und direkte Betrachten von Graphiken im Format von `ggplot2` ermöglicht wird. Ebenso wird der erforderliche Code für erstellte Graphiken angezeigt, sodass dieser einfach kopiert und übernommen werden kann, sollte sich eine Graphik für eine bestimmte Form von Report o. Ä. als relevant erweisen^[@esquisse_webpage].
 
 # Analyseteil: Praktische Nutzung von `ggplot2`
 
@@ -145,13 +174,19 @@ Es kann aus der Graphik somit einfach herausgelesen werden, dass die Wählerscha
 
 
 
-## Analyse 5: Evtl. noch was zu soziale Klasse
+## Analyse 5: Evtl. noch was zu sozialer Klasse
 
 
 
 # Schlussbemerkungen/Fazit
 
+Für das vorliegende Portfolio findet sich [unter diesem Link]() ein zugehöriges GitHub-Repository, welches zum Überblick und zur Versionskontrolle genutzt wurde.
 
++ ggplot bietet quality of life verbesserungen ggü. baseR
++ ggplot ist unglaublich customizable
++ ggplot bietet vielerlei ressourcen, um sich mit der funktionsweise vertraut zu machen
+  + diese ressourcen == meist kostenlos online verfügbar
++ super integration von ggplot2 plots in rmarkdown, welches in sich wiederum eine enorme erleichterung für "data driven reports" ist
 
 
 # Literatur {-}
