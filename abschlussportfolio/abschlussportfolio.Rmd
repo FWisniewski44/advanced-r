@@ -75,6 +75,7 @@ library(haven)
 library(foreign)
 library(esquisse)
 library(expss)
+library(MASS)
 ```
 
 Zur Erstellung der Graphiken in diesem Portfolio wird auf `ggplot2` aus dem `tidyverse` zurückgegriffen, da dieses umfassende Möglichkeiten hierzu bietet. Es können damit vielseitige Graphiken erstellt werden, die mehrere Layer haben. Ebenso wird das Package `plotly` verwendet, um teilweise `ggplot2`-Graphiken für die Betrachtenden des abschließenden HTML-Dokuments interaktiv zu gestalten.
@@ -168,6 +169,21 @@ Es kann aus der Graphik somit einfach herausgelesen werden, dass die Wählerscha
 
 ## Analyse 3: Logistische Regression zu Fremdenfeindlichkeit - welche Einflüsse gibt es?
 
+Weiterhin lassen sich mittels `ggplot2` auch wertvolle graphische Analysen von Regressionsmodellen durchführen. Als Beispiel soll hier ein kleines logistisches Regressionsmodell gerechnet werden. Für dieses werden dann die odds ratios berechnet, welche zur Interpretation auf reiner Zahlenbasis zumindest etwas dienlicher sind, als die log odds.
+
+Dann soll ein Vergleich mit der Interpretation durch Visualisierung durchgeführt werden, um zu zeigen, wie hilfreich dies sein kann, wenn man statistische Ergebnisse nicht nur errechnen, sondern z. B. auch präsentieren muss. Hier kann nicht immer vorausgesetzt werden, dass die Teilnehmenden einer Konferenz oder eines Meetings die von einem selbst gerechneten Modelle mit dem ersten Blick auf große Tabellen sofort verstehen. Intuitiver ist da jedoch der Blick auf Graphiken.
+
+```{r}
+fre(allbus$sonntagsfrage)
+
+allbus$dummy_wahlabs <- ifelse(allbus$sonntagsfrage == "Grüne", 1, 0)
+fre(allbus$dummy_wahlabs)
+
+# erstes beispielmodell: klassifikation vom wahlabsichts-dummy
+model1 <- glm(data = allbus, formula = dummy_wahlabs ~ age + ostwest + inc + as.factor(id03), family = "binomial"(link = "logit"))
+summary(model1)
+exp(cbind(coef(model1), confint(model1)))
+```
 
 
 ## Analyse 4: Warum `ggplot2` und nicht einfach `baseR`?
