@@ -173,36 +173,119 @@ Weiterhin lassen sich mittels `ggplot2` auch wertvolle graphische Analysen von R
 
 Dann soll ein Vergleich mit der Interpretation durch Visualisierung durchgeführt werden, um zu zeigen, wie hilfreich dies sein kann, wenn man statistische Ergebnisse nicht nur errechnen, sondern z. B. auch präsentieren muss. Hier kann nicht immer vorausgesetzt werden, dass die Teilnehmenden einer Konferenz oder eines Meetings die von einem selbst gerechneten Modelle mit dem ersten Blick auf große Tabellen sofort verstehen. Intuitiver ist da jedoch der Blick auf Graphiken.
 
-```{r}
-fre(allbus$sonntagsfrage)
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+# fre(allbus$sonntagsfrage)
+# 
+# allbus$dummy_wahlabs <- ifelse(allbus$sonntagsfrage == "Grüne", 1, 0)
+# fre(allbus$dummy_wahlabs)
 
-allbus$dummy_wahlabs <- ifelse(allbus$sonntagsfrage == "Grüne", 1, 0)
-fre(allbus$dummy_wahlabs)
+allbus$sex <- factor(allbus$sex, labels = c("Männlich", "Weiblich"))
 
-# erstes beispielmodell: klassifikation vom wahlabsichts-dummy
-model1 <- glm(data = allbus, formula = dummy_wahlabs ~ age + ostwest + inc + as.factor(id03), family = "binomial"(link = "logit"))
-summary(model1)
-exp(cbind(coef(model1), confint(model1)))
+# # erstes beispielmodell: klassifikation vom wahlabsichts-dummy
+# model1 <- glm(data = allbus, formula = dummy_wahlabs ~ age + ostwest + inc + sex + as.factor(id03), family = "binomial"(link = "logit"))
+# summary(model1)
+# exp(cbind(coef(model1), confint(model1)))
+
+linear <- lm(data = allbus, formula = inc ~ age + ostwest + sex + age*sex, weights = wghtpew)
+summary(linear)
 ```
 
 
-## Analyse 4: Warum `ggplot2` und nicht einfach `baseR`?
+```{r}
+linear_ggplot2 <- ggplot(data = allbus, aes(x = ...)) +
+  geom_point() +
+  geom_smooth()
+# use shape parameter
+```
 
 
+## Analyse 4: "Warum `ggplot2` und nicht einfach `baseR`?" - Praxisbeispiel
 
-## Analyse 5: Evtl. noch was zu sozialer Klasse
+Als letztes Beispiel soll auf die Unterschiede zwischen `ggplot2` und `baseR` von der praktischen Seite aus eingegangen werden. Viele Nutzende stehen, wie bereits erwähnt, vor dieser Wahl, wenn sie ihre Ergebnisse visuell aufbereiten möchten. An dieser Stelle soll deshalb anhand der gleichen Daten und der gleichen Ziel-Graphik gezeigt werden, wie die Syntax dafür aussehen würde. Anschließend soll gezeigt werden, wieso vorliegende Arbeit `ggplot2` bevorzugt.
+
+Kritische Stimmen, die immer wieder die ästhetischen Merkmale bzw. "Vorzüge" eines der beiden Packages gegenüber des anderen hervorheben, wurden hier bewusst ignoriert. Mit den zur Verfügung stehenden Optionen ist es sehr einfach, Graphen sowohl in `baseR`, als auch in `ggplot2` nach eigenem Geschmack oder bestimmten Designvorgaben zu verändern - einzig die Umsetzung dessen sollte also im Vordergrund stehen.
+
+```{r umformung variablen, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+allbus$sicherheit <- factor(allbus$mp17, labels = c("Keine Angabe", "Weiß nicht", 
+                                                    "Risiko überwiegt", "Eher Risiko",
+                                                    "Teils/Teils", "Eher Chance", "Chance überwiegt"))
+
+labels_baseR <- paste(names(table(allbus$ostwest)))
+```
 
 
+```{r boxplots ggplot2, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+boxplots_ggplot2 <- ggplot(allbus) +
+  geom_boxplot(aes(x = ostwest, y = age, fill = ostwest, weight = wghtpew), size = 0.75, outlier.colour = NA) +
+  facet_wrap(. ~ sicherheit, nrow = 2) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), legend.position = "bottom") +
+  ggtitle(label = "Flüchtlinge: Chance oder Risiko beim Thema Sicherheit?", subtitle = "Alter der Befragten, nach West-/Ostdeutschland und Antwort gruppiert") +
+  ylab("Alter der Befragten") +
+  xlab(" ") +
+  scale_fill_manual("Herkunft", values = c("#191970", "#9a0e2a"))
 
-# Schlussbemerkungen/Fazit
+boxy <- boxplots_ggplot2 +
+  coord_cartesian(ylim = c(0, 100))
 
-Für das vorliegende Portfolio findet sich [unter diesem Link]() ein zugehöriges GitHub-Repository, welches zum Überblick und zur Versionskontrolle genutzt wurde.
+boxy
+```
 
-+ ggplot bietet quality of life verbesserungen ggü. baseR
-+ ggplot ist unglaublich customizable
-+ ggplot bietet vielerlei ressourcen, um sich mit der funktionsweise vertraut zu machen
-  + diese ressourcen == meist kostenlos online verfügbar
-+ super integration von ggplot2 plots in rmarkdown, welches in sich wiederum eine enorme erleichterung für "data driven reports" ist
+```{r boxplots baseR, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+par(xaxs = "i", xaxt = "n")
 
+x <- boxplot(age ~ ostwest*sicherheit,
+        data = allbus,
+        col = c("#191970", "#9a0e2a"),
+        frame = FALSE,
+        outline = FALSE,
+        main = "Flüchtlinge: Chance oder Risiko beim Thema Sicherheit?",
+        sub = "Alter der Befragten, nach West-/Ostdeutschland und Antwort gruppiert",
+        xlab = " ",
+        ylab = "Alter der Befragten",
+        xaxt = "n",
+        las = 2)
+axis(1, at=seq(1, 14, by = 1), labels = T)
+text(seq(1, 14, by=1), par("usr")[3]-8, labels = c("W-k.A.", "O-k.A.", "W-Weiß nicht", "O-Weiß nicht", "W-Risiko überw.", "O-Risiko überw.", "W-Eher Risiko", "O-Eher Risiko", "W-Teils/Teils", "O-Teils/Teils", "W-Eher Chance", "O-Eher Chance", "W-Chance überw.", "O-Chance überw."), srt = 70, pos = 1, xpd = T, cex = 0.6)
+legend(x = "topright", legend = c("West", "Ost"), fill = c("#191970", "#9a0e2a"), cex = 0.8)
+
+box()
+```
+
+Für die Erstellung der hier vorliegenden Boxplots sind bewusst sehr viele zusätzliche Optionen zur Veranschaulichung verwendet worden. Wie aus den beiden Graphiken zu sehen ist, wurde ein zumindest vergleichbares Ergebnis mit den zur Verarbeitung an `R` gegebenen Daten erreicht. Hätte man jedoch bezüglich der graphischen Ausgestaltung wirklich ein identisches Ergebnis haben wollen, so hätte man die Variable *sicherheit* für jede ihrer Kategorien plotten und dann mittels der Funktion `par(mfrow = x)` auf diese Weise anordnen müssen.
+
+Bei einem Blick auf den Code lässt sich also feststellen: die Syntax im `ggplot2`-Beispiel könnte man getrost als *"human readable"* bezeichnen, wohingegen dies im Falle des `boxplot()`-Befehls aus `baseR` wohl eher nicht behauptet werden könnte. Grund dafür ist, dass die einzelnen, mittels eines `+`-Zeichens aufgestapelten Layer sehr deskriptive Funktionsnamen aufweisen, während in `baseR` pro Graph *eine* Funktion allein genutzt wird. Die Parameter dieser Funktion bilden dann das Gegenstück zu den Layern in `ggplot2` (wie hier am Beispiel eines Boxplots gezeigt). Darüber hinaus sind die Funktionen in `ggplot2` sehr deklarativ, d. h. allein durch das Lesen der Namen der Funktion weiß der Nutzende, welchen Zweck sie erfüllen. Sieht man sich den Code für die Boxplots in `baseR` an, so kann zurecht konstatiert werden, dass dies hier nicht der Fall ist. Dies erleichtert die Arbeit durch Nutzung von `ggplot2` enorm, der Code aus `baseR` wirkt unordentlich - dementsprechend wirkt auch die Graphik. Als gutes Beispiel kann man sich die x-Achsen-Labels herausnehmen, welche mittels `ggplot2` wesentlich einfacher eingerichtet werden konnten. Zudem sind die Abkürzungen für die verschiedenen Parameter in `baseR` mehr als verwirrend.
+
+Was `baseR` in jedem Fall aber zu Gute gehalten werden sollte ist, dass es Graphen extrem schnell plotten kann. Sobald die Syntax ausgeführt wurde, ist der gewünschte Graph auch schon erzeugt. Bei `ggplot2` hingegen ist eine sehr kurze Wartezeit zu erwarten (jedoch in keinem Fall länger als 5 Sekunden). Somit kann man in der Praxis in `R`, sofern man nur schnell einen Über- bzw. Einblick in die Beziehung von Variablen untereinander erlangen möchte, getrost auf `baseR` zurückgreifen - doch für die Visualisierung innerhalb eines Reports würde vorliegende Arbeit anraten, in jedem Fall `ggplot2` zu verwenden, da der Code wesentlich einfacher "lesbar" ist. Dies ist besonders in solchen Fällen von großem Nutzen, wenn Arbeiten oder Berichte nach einiger Zeit nochmals angesehen werden. Nutzende sind im Falle von `ggplot2` schnell wieder im Bild. Zudem sei, sofern im HTML-Format gearbeitet wird, auf die Möglichkeiten der Gestaltung von `ggplot2`-Graphen als interaktive Graphen mittels `plotly` hingewiesen - ein Feature, das `ggplot2` ebenso von `baseR` abhebt.
+
+# Schlussbemerkungen und Fazit
+
+Es kann zum Abschluss also das folgende Fazit zum Package `ggplot2` in `R` gezogen werden: es lohnt sich generell als `R`-Nutzender, einen Blick auf dieses Package zu werfen. Es konnte sich neben `baseR` als zentrale Alternative zur Gestaltung von Visualisierungen und Graphiken durchsetzen - und als Teil des tidyverse, welches von vielen Nutzenden ohnehin geschätzt wird, ist auch keine zusätzliche Installation nötig. Es werden nun noch einmal zum Abschluss  auf einen Blick die für diese Arbeit größten Vorteile bzw. "selling points" des Packages einzeln hervorgehoben:
+
+  ***1. `ggplot2` ist extrem vielseitig in der Nutzung und bietet mehr Möglichkeiten, als `baseR` oder andere Graphik-Packages.***
+  
+Durch die Iimplementierung der "Grammar of Graphics" nach Wilkinson, bzw. der Schaffung seiner eigenen Version dieser, gelang es Hadley Wickham und dem Team hinter dem `tidyverse`, für `ggplot2` ein großes Alleinstellungsmerkmal im Bereich der Visualisierung zu schaffen: **die große Modularität und Vielseitigkeit**. Dadurch, dass man nicht nur einen Graph *an sich* visualisiert, sondern praktisch jedes Merkmal und jede Ebene dessen einzeln bestimmen, verändern und erzeugen kann, so wie es die Situation erfordert, ergibt sich gegenüber `baseR` und auch anderen Packages wie `lattice` ein großer Vorteil für die Nutzenden von `ggplot2`.
+  
+  ***2. Der Einstieg in `ggplot2` für neue Nutzende (sowohl des Packages, aber auch insgesamt für `R`-Neulinge) ist durch die große Verfügbarkeit von vielerlei Ressourcen sehr einfach gestaltet.***
+  
+Dieser Punkt spricht ebenso für das Package. Es gibt zahlreiche, qualitativ hochwertige Ressourcen, die darüber hinaus auch oftmals noch kostenlos online verfügbar sind. So publizieren u. a. Hadley Wickham und das `ggplot2`-Team ihre Bücher via `bookdown` kostenfrei im Internet. Für viele dieser Bücher besteht außerdem die Wahl, diese trotzdem als Taschenbuch zu erstehen und damit die Entwickler zusätzlich zu unterstützen (dies zeigt stark die Freiwilligkeitsbasis, welche in der Open Source-Branche großgeschrieben wird).
+
+Doch darüber hinaus ermöglicht diese gute Verfügbarkeit der Ressourcen auch neuen angehenden `R`-Nutzenden, sich mit möglichst wenig finanziellem Aufwand einen qualitativ hochwertigen Überblick verschaffen zu können. Gerade für Studierende ist damit `R` an sich generell die beste Wahl, wenn es um Statistiksoftware geht und lässt Konkurrenz wie Stata oder SPSS hinter sich - und `ggplot2` trägt hierzu als Puzzelstück des `tidyverse` einen entscheidenden Teil dazu bei.
+
+  ***3. Die Integration von `ggplot2`-Visualisierungen in `RMarkdown` ist nahtlos und vereinfacht die Arbeit ungemein - sowohl im Studium, als auch für bspw. Data Science Teams.***
+
+Auch hier sollte der Blick geweitet und auf die Konkurrenz (Stata, SPSS) hingewiesen werden. Während dort ein Fenster in Microsoft Word geöffnet wird, dann ein Graph erstellt, gespeichert und exportiert sowie danach mühevoll passend in ein Dokument im `.docx`-Dateiformat eingefügt werden muss, ist `R` durch die Entwicklung von `RMarkdown` und eine IDE wie `RStudio` wesentlich effektiver. Mittels `RMarkdown` wird also sowohl die Arbeit von Studierenden, als auch jene von Data Science Teams o. Ä. extrem erleichert.
+
+Hier kommt dann erneut die Vielseitigkeit von `ggplot2` zum Tragen: Graphen lassen sich extrem einfach in Codeblöcken in Reports einbringen und vereinfachen somit die Kommunikation von Daten mit Außenstehenden. Hierbei ist erneut `ggplot2` gegenüber `baseR` nach der Meinung dieser Arbeit die bessere Wahl: so können z. B. im HTML-Format interaktive Graphiken erstellt werden und die Nutzenden der Features profitieren, wie bereits gesagt, von vereinfachtem Syntax (vgl. 3.4) und großer Modularität.
+
+Abschließend kann also konstatiert werden, dass durch `ggplot2` und das gesamte `tidyverse` eine Vielzahl von Verbesserungen für `R` implementiert werden konnten. Diese sollten dazu führen, dass nicht nur in der Wirtschaft, sondern auch an den Universitäten im Bereich der Datenanalyse veraltete und wenig innovationsfreudige Tools wie SPSS oder Stata durch nutzerfreundliche und zukunftsträchtige wie `R` oder aber auch Python abgelöst werden.
+
+Für das vorliegende Portfolio findet sich, sollte Interesse bestehen, [unter diesem Link](https://github.com/FWisniewski44/advanced-r) ein zugehöriges GitHub-Repository, welches zum Überblick und zur Versionskontrolle/externen Speicherung bei der Erstellung genutzt wurde.
+
+<!-- + ggplot bietet quality of life verbesserungen ggü. baseR -->
+<!-- *+ ggplot ist unglaublich customizable* -->
+<!-- + ggplot bietet vielerlei ressourcen, um sich mit der funktionsweise vertraut zu machen -->
+<!--   + diese ressourcen == meist kostenlos online verfügbar -->
+<!-- + super integration von ggplot2 plots in rmarkdown, welches in sich wiederum eine enorme erleichterung für "data driven reports" ist -->
 
 # Literatur {-}
