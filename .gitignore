@@ -26,7 +26,8 @@ vignettes/*.pdf
 *.knit.md
 # R Environment Variables
 .Renviron
-ALLBUS2018
-GLES2017
 test
 .DS_Store
+abschlussportfolio_FW.Rmd
+abschlussportfolio_FW.html
+abschlussportfolio_FW_files

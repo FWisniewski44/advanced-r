@@ -11,7 +11,7 @@ output:
 abstract:
   "In diesem Portfolio sollen verschiedene sozialwissenschaftliche Datensätze hinsichtlich zentraler Werte statistisch aufgearbeitet und anschließend visualisiert werden."
 lang: "DE"
-runtime: shiny
+#runtime: shiny
 documentclass: "article"
 geometry: "2.5"
 fontfamily: "Roboto"
@@ -39,13 +39,6 @@ opts_knit$set(width=75)
 ```
 
 # Einleitung
-
-```{r load dfs, echo = FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
-setwd(dir = "/Users/flo/Documents/Uni/Uni Bamberg/SS 2021/Advanced R/advanced-r")
-
-allbus <- read_dta(file = "ALLBUS2018/allbus2018.dta")
-gles <- read_dta(file = "GLES2017/GLES2017")
-```
 
 > The simple graph has brought more information to the data analyst's mind than any other device.^[@RDataScience, S. 3]
 
@@ -80,6 +73,13 @@ library(MASS)
 library(car)
 library(sjPlot)
 library(shiny)
+```
+
+```{r load dfs, echo = FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+setwd(dir = "/Users/flo/Documents/Uni/Uni Bamberg/SS 2021/Advanced R/advanced-r")
+
+allbus <- read_dta(file = "ALLBUS2018/allbus2018.dta")
+gles <- read_dta(file = "GLES2017/GLES2017")
 ```
 
 # Inhaltlich zu `ggplot2`
